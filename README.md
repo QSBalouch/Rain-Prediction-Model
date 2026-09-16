@@ -1,31 +1,68 @@
-# 🤖 Machine Learning Classification Project
+# 🌧️ Rain Tomorrow Prediction
 
 ## 📌 Project Overview
 
-This project focuses on predicting a **binary target outcome** using machine learning classification algorithms. The workflow covers data exploration, preprocessing, model training, hyperparameter tuning, and performance comparison across multiple classification models.
+This project focuses on predicting whether it will **rain the following day** using historical weather observations from different locations across Australia.
 
-Several models are evaluated to determine which approach provides the best generalization to unseen data.
+The dataset contains approximately **10 years of daily weather observations** collected from numerous Australian weather stations. It contains **23 attributes**, including the target variable `RainTomorrow`, which indicates whether or not it rains the next day.
+
+Since `RainTomorrow` represents two possible outcomes (`Yes` or `No`), this is a **binary classification problem**.
 
 ---
 
 ## 🎯 Objective
 
-The main objective is to build a classification model that can accurately predict the target outcome and compare different machine learning algorithms based on their performance on unseen validation data.
+The main objective is to build a machine learning classification model that can predict whether rain will occur on the following day based on current and historical weather conditions.
 
-The project evaluates both simple linear models and tree-based algorithms to understand their strengths, weaknesses, and generalization performance.
+Multiple classification algorithms are trained and compared to understand how different models perform on this prediction task.
 
 ---
 
-## 🔧 Machine Learning Workflow
+## 📊 Dataset
 
-The project follows the following workflow:
+The dataset contains approximately **10 years of daily weather observations** from different locations across Australia.
+
+The observations include weather-related information such as:
+
+* Temperature
+* Rainfall
+* Humidity
+* Atmospheric pressure
+* Wind speed
+* Wind direction
+* Cloud coverage
+* Sunshine
+* Evaporation
+* Location
+* Date
+
+The target variable is:
+
+### `RainTomorrow`
+
+| Value | Meaning                          |
+| ----- | -------------------------------- |
+| `Yes` | Rain is expected the next day    |
+| `No`  | No rain is expected the next day |
+
+---
+
+## 🔍 Problem Type
+
+**Supervised Learning → Binary Classification**
+
+The model learns from historical weather observations where the next day's rainfall outcome is known and uses the learned patterns to predict whether it will rain tomorrow.
+
+---
+
+## 🛠️ Project Workflow
 
 ```text
 Data Loading
      ↓
 Data Exploration
      ↓
-Data Preprocessing
+Data Cleaning & Preprocessing
      ↓
 Feature Preparation
      ↓
@@ -43,7 +80,7 @@ Random Forest Hyperparameter Tuning
      ↓
 Model Comparison
      ↓
-Final Evaluation
+Final Test Evaluation
 ```
 
 ---
@@ -52,50 +89,52 @@ Final Evaluation
 
 ### 1. Logistic Regression
 
-Logistic Regression provides the initial machine learning baseline. It learns the relationship between the input features and the binary target and produces predictions for the two classes.
+Logistic Regression provides the initial classification baseline by learning the relationship between the weather features and the probability of rain occurring the following day.
 
 **Training Accuracy:** 87.42%
 **Validation Accuracy:** 87.41%
 
-The very small difference between training and validation accuracy indicates good generalization with minimal overfitting.
+The very small difference between the training and validation accuracy indicates that the model generalizes well to the validation data.
 
 ---
 
 ### 2. Decision Tree
 
-Decision Tree is used to capture non-linear relationships and feature interactions that may not be represented effectively by Logistic Regression.
+Decision Tree can capture non-linear relationships and interactions between weather features.
 
 #### Without Hyperparameter Tuning
 
 **Training Accuracy:** 100.00%
 **Validation Accuracy:** 79.15%
 
-The extremely high training accuracy combined with substantially lower validation accuracy indicates significant overfitting.
+The very high training accuracy combined with the substantially lower validation accuracy indicates significant overfitting.
 
 #### After Hyperparameter Tuning
 
 The optimized Decision Tree uses:
 
-* `max_depth = 7`
-* `max_leaf_nodes = 58`
+```python
+max_depth = 7
+max_leaf_nodes = 58
+```
 
 **Training Accuracy:** 84.40%
 **Validation Accuracy:** 84.35%
 
-The tuned model significantly reduces overfitting and produces much more consistent training and validation performance.
+The tuned model provides much more consistent training and validation performance, reducing the overfitting observed in the initial Decision Tree.
 
 ---
 
 ### 3. Random Forest
 
-Random Forest combines multiple decision trees to improve predictive performance and capture complex non-linear relationships.
+Random Forest combines multiple decision trees to capture complex relationships in the weather data while generally providing better generalization than a single decision tree.
 
 #### Without Hyperparameter Tuning
 
 **Training Accuracy:** 100.00%
 **Validation Accuracy:** 85.61%
 
-The model performs considerably better than the untuned Decision Tree, although the difference between training and validation accuracy indicates overfitting.
+The model performs better than the untuned Decision Tree, although the difference between training and validation accuracy indicates overfitting.
 
 #### After Hyperparameter Tuning
 
@@ -112,14 +151,17 @@ RandomForestClassifier(
 )
 ```
 
-**Training Accuracy:** 100.00%
-**Validation Accuracy:** 87.13%
+Performance:
 
-The tuned Random Forest improves validation performance compared with the untuned version.
+* **Training Accuracy:** 100.00%
+* **Validation Accuracy:** 87.13%
+* **Test Accuracy:** 86.40%
+
+The `class_weight` setting gives additional importance to the `Yes` class, helping the model pay more attention to rain-related predictions.
 
 ---
 
-## 📊 Model Comparison
+## 📈 Model Comparison
 
 | Model               | Training Accuracy | Validation Accuracy |
 | ------------------- | ----------------: | ------------------: |
@@ -127,40 +169,81 @@ The tuned Random Forest improves validation performance compared with the untune
 | Decision Tree       |           100.00% |              79.15% |
 | Tuned Decision Tree |            84.40% |              84.35% |
 | Random Forest       |           100.00% |              85.61% |
-| Tuned Random Forest |           100.00% |          **87.13%** |
+| Tuned Random Forest |           100.00% |              87.13% |
+
+### Final Test Performance
+
+The tuned Random Forest achieves:
+
+**Test Accuracy: 86.40%**
+
+The test set provides an evaluation on data that the model does not use during training or hyperparameter selection.
+
+---
+
+## 🔧 Hyperparameter Tuning
+
+Hyperparameter tuning is applied to the Decision Tree and Random Forest models to control model complexity and improve generalization.
+
+For the Random Forest, the final selected configuration includes:
+
+* `n_estimators = 500`
+* `max_features = 7`
+* `max_depth = 30`
+* `class_weight = {'No': 1, 'Yes': 1.5}`
+* `random_state = 42`
+* `n_jobs = -1`
+
+---
+
+## 📏 Evaluation Metric
+
+### Accuracy
+
+Accuracy represents the proportion of predictions that the model classifies correctly.
+
+```text
+Accuracy = Correct Predictions / Total Predictions
+```
+
+For example, a test accuracy of **86.40%** means that approximately 86 out of every 100 test observations receive the correct classification.
+
+Because this is a rainfall prediction problem, additional metrics such as **precision, recall, F1-score, confusion matrix, and ROC-AUC** can provide further insight into how well the model identifies the `RainTomorrow = Yes` class.
 
 ---
 
 ## 🏆 Final Results
 
-The **Logistic Regression** model achieves the highest validation accuracy at **87.41%**, closely followed by the tuned Random Forest at **87.13%**.
+The tuned Random Forest achieves a **validation accuracy of 87.13%** and a **test accuracy of 86.40%**.
 
-Although the tuned Random Forest provides strong predictive performance, its **100% training accuracy compared with 87.13% validation accuracy indicates some overfitting**. In contrast, Logistic Regression has almost identical training and validation accuracy, demonstrating more stable generalization.
+The test performance remains relatively close to the validation performance, indicating consistent performance on unseen observations. However, the **100% training accuracy** compared with the validation and test scores indicates that the Random Forest still captures patterns specific to the training data.
 
-Based strictly on validation accuracy, **Logistic Regression is the best-performing model in this experiment**.
+Logistic Regression provides a particularly stable baseline, with almost identical training and validation accuracy (**87.42% vs. 87.41%**).
 
 ---
 
-## 🔍 Key Findings
+## 💡 Key Findings
 
 * Logistic Regression provides a strong and stable baseline.
-* The untuned Decision Tree significantly overfits the training data.
-* Hyperparameter tuning substantially improves Decision Tree generalization.
+* The initial Decision Tree heavily overfits the training data.
+* Decision Tree hyperparameter tuning substantially reduces the overfitting.
 * Random Forest performs better than the individual Decision Tree.
 * Hyperparameter tuning improves Random Forest validation accuracy from **85.61% to 87.13%**.
-* Logistic Regression achieves slightly higher validation accuracy than the tuned Random Forest.
-* Training accuracy alone is not sufficient for model selection; validation performance and the train-validation gap are important indicators of generalization.
+* The tuned Random Forest achieves **86.40% test accuracy**.
+* Training accuracy alone does not provide enough information about model generalization.
+* Comparing validation and test performance provides a better understanding of how the model performs on unseen weather observations.
 
 ---
 
 ## 🛠️ Technologies Used
 
-* Python
-* Pandas
-* NumPy
-* Scikit-learn
-* Jupyter Notebook
-* Matplotlib / Seaborn *(if used in the notebook)*
+* **Python**
+* **Pandas**
+* **NumPy**
+* **Scikit-learn**
+* **Jupyter Notebook**
+* **Matplotlib**
+* **Seaborn** 
 
 ### Machine Learning Techniques
 
@@ -170,22 +253,24 @@ Based strictly on validation accuracy, **Logistic Regression is the best-perform
 * Random Forest Classification
 * Hyperparameter Tuning
 * Model Evaluation
-* Accuracy-based Model Comparison
+* Accuracy
+* Train/Validation/Test Evaluation
 
 ---
 
 ## 📁 Project Structure
 
 ```text
-Classification-Project/
+Rain-Tomorrow-Prediction/
 │
-├── Classification_Project.ipynb
+├── Rain_Tomorrow_Prediction.ipynb
 ├── README.md
-└── dataset.csv
+└── dataset/
+    └── weatherAUS.csv
 ```
 
 ---
 
 ## 📌 Conclusion
 
-The project demonstrates the importance of comparing different classification algorithms and controlling model complexity through hyperparameter tuning. While tree-based models achieve very high training accuracy, they can overfit without appropriate constraints. Logistic Regression provides the most stable generalization in this experiment, achieving **87.41% validation accuracy**, while the tuned Random Forest achieves a comparable **87.13% validation accuracy**.
+This project demonstrates the application of supervised machine learning to predict whether it will rain the following day using Australian weather observations. Logistic Regression provides a stable baseline, while Decision Tree and Random Forest models allow the project to capture more complex relationships in the weather data. Hyperparameter tuning improves the generalization of both tree-based approaches, with the tuned Random Forest achieving **87.13% validation accuracy and 86.40% test accuracy**. The project also highlights the importance of evaluating models on unseen data rather than relying solely on training accuracy.
